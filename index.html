@@ -1,0 +1,2289 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ศูนย์แหล่งเรียนรู้วิชาทัศนศิลป์</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+            min-height: 100vh;
+        }
+        
+        .learning-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            transition: all 0.3s ease;
+        }
+        
+        .learning-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .quiz-option:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .quiz-option.correct {
+            border-color: #10b981;
+            background-color: #d1fae5;
+        }
+        
+        .quiz-option.incorrect {
+            border-color: #ef4444;
+            background-color: #fee2e2;
+        }
+        
+        .topic-card {
+            background: linear-gradient(135deg, var(--start-color), var(--end-color));
+            border-radius: 1rem;
+            padding: 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .topic-card:hover {
+            transform: translateY(-10px) scale(1.02);
+        }
+        
+        .topic-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        .topic-card:hover::before {
+            transform: scale(1.2);
+        }
+        
+        .color-wheel {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                #ff0000 0deg,
+                #ff8000 60deg,
+                #ffff00 120deg,
+                #80ff00 180deg,
+                #00ff00 240deg,
+                #00ff80 300deg,
+                #00ffff 360deg,
+                #0080ff 420deg,
+                #0000ff 480deg,
+                #8000ff 540deg,
+                #ff00ff 600deg,
+                #ff0080 660deg,
+                #ff0000 720deg
+            );
+            margin: 20px auto;
+            position: relative;
+        }
+        
+        .color-wheel::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .color-demo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .color-box {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: transform 0.2s ease;
+        }
+        
+        .color-box:hover {
+            transform: scale(1.1);
+        }
+        
+        .visual-demo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            min-height: 120px;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform-origin: 50% 50%;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: confetti-fall 3s ease-in infinite;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .difficulty-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        .difficulty-easy { background: #d1fae5; color: #065f46; }
+        .difficulty-medium { background: #fef3c7; color: #92400e; }
+        .difficulty-hard { background: #fee2e2; color: #991b1b; }
+        
+        .stats-card {
+            background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+            border-radius: 1rem;
+            padding: 1.5rem;
+            color: white;
+            text-align: center;
+        }
+        
+        .element-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .topic-section {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .topic-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .creator-info {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem;
+            border-radius: 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div id="confetti-container" class="fixed inset-0 pointer-events-none z-50"></div>
+    
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-5xl font-bold text-white mb-3">🎨 ศูนย์แหล่งเรียนรู้วิชาทัศนศิลป์</h1>
+            <p class="text-xl text-white opacity-90">แหล่งเรียนรู้และเกมส์ทดสอบความรู้ด้านทัศนศิลป์</p>
+            
+            <!-- Creator Info -->
+            <div class="creator-info max-w-md mx-auto mt-6">
+                <div class="text-2xl mb-2">👩‍🏫</div>
+                <h3 class="text-lg font-semibold">ผู้จัดทำสื่อการสอนการเรียน</h3>
+                <p class="text-sm opacity-90">นางสาวสุนิสา เนาวรัตน์</p>
+            </div>
+        </header>
+        
+        <!-- Navigation Tabs -->
+        <div class="flex flex-wrap justify-center gap-2 mb-8">
+            <button class="tab-button active px-6 py-3 rounded-xl font-medium transition-all duration-300" data-tab="home">
+                🏠 หน้าหลัก
+            </button>
+            <button class="tab-button px-6 py-3 rounded-xl font-medium bg-white text-gray-700 hover:bg-gray-100" data-tab="learn">
+                📚 เรียนรู้
+            </button>
+            <button class="tab-button px-6 py-3 rounded-xl font-medium bg-white text-gray-700 hover:bg-gray-100" data-tab="quiz">
+                🎮 ทดสอบความรู้
+            </button>
+            <button class="tab-button px-6 py-3 rounded-xl font-medium bg-white text-gray-700 hover:bg-gray-100" data-tab="stats">
+                📊 สถิติ
+            </button>
+        </div>
+        
+        <!-- Home Tab -->
+        <div id="home-tab" class="tab-content">
+            <div class="learning-card rounded-2xl shadow-2xl p-8 mb-8">
+                <div class="text-center mb-8">
+                    <div class="text-8xl mb-6">🎨</div>
+                    <h2 class="text-3xl font-bold mb-4 text-gray-800">ยินดีต้อนรับสู่โลกแห่งทัศนศิลป์</h2>
+                    <p class="text-lg text-gray-600 max-w-4xl mx-auto">
+                        ศูนย์การเรียนรู้ครบครันเกี่ยวกับทัศนศิลป์ ครอบคลุม 4 หัวข้อหลัก พร้อมเกมส์ทดสอบที่สุ่มคำถามทุกครั้ง 
+                        เพื่อป้องกันการลอกกันและส่งเสริมการเรียนรู้อย่างแท้จริง
+                    </p>
+                </div>
+                
+                <div class="topic-selector">
+                    <div class="topic-card" style="--start-color: #667eea; --end-color: #764ba2;">
+                        <div class="relative z-10">
+                            <div class="text-6xl mb-4">•</div>
+                            <h3 class="text-2xl font-bold mb-3">1. ทัศนธาตุ</h3>
+                            <p class="text-sm opacity-90 mb-4">
+                                จุด เส้น รูปร่าง รูปทรง ขนาดและสัดส่วน สี แสงเงา บริเวณว่าง และพื้นผิว
+                            </p>
+                            <div class="flex justify-between text-xs">
+                                <span>📝 9 องค์ประกอบ</span>
+                                <span>🎯 พื้นฐานศิลปะ</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="topic-card" style="--start-color: #f093fb; --end-color: #f5576c;">
+                        <div class="relative z-10">
+                            <div class="text-6xl mb-4">⚖️</div>
+                            <h3 class="text-2xl font-bold mb-3">2. หลักการจัดองค์ประกอบศิลป์</h3>
+                            <p class="text-sm opacity-90 mb-4">
+                                เอกภาพ ความสมดุล จุดเด่น ความกลมกลืน ความขัดแย้ง สัดส่วน จังหวะและลีลา
+                            </p>
+                            <div class="flex justify-between text-xs">
+                                <span>📐 7 หลักการ</span>
+                                <span>🎨 การจัดวาง</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="topic-card" style="--start-color: #4facfe; --end-color: #00f2fe;">
+                        <div class="relative z-10">
+                            <div class="text-6xl mb-4">📐</div>
+                            <h3 class="text-2xl font-bold mb-3">3. หลักการวาดภาพแบบทัศนียภาพ</h3>
+                            <p class="text-sm opacity-90 mb-4">
+                                Perspective 1 จุด 2 จุด และ 3 จุดรวมสายตา
+                            </p>
+                            <div class="flex justify-between text-xs">
+                                <span>👁️ 3 ประเภท</span>
+                                <span>📏 มิติและความลึก</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="topic-card" style="--start-color: #a8edea; --end-color: #fed6e3;">
+                        <div class="relative z-10">
+                            <div class="text-6xl mb-4">🌈</div>
+                            <h3 class="text-2xl font-bold mb-3">4. ทฤษฎีสีและการใช้สี</h3>
+                            <p class="text-sm opacity-90 mb-4">
+                                วงล้อสี สีโทนร้อน-เย็น สีคุมโทน สีคู่ตรงข้าม
+                            </p>
+                            <div class="flex justify-between text-xs">
+                                <span>🎨 ทฤษฎีสี</span>
+                                <span>🌟 การใช้สี</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-xl p-6 mb-8">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="text-4xl">📊</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">ระบบสถิติและการสุ่มคำถาม</h3>
+                            <p class="text-gray-600">ติดตามผลการเรียนรู้ พร้อมระบบสุ่มคำถามป้องกันการลอกกัน</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div class="bg-white rounded-lg p-3">
+                            <div class="text-2xl font-bold text-blue-600" id="total-attempts-home">0</div>
+                            <div class="text-sm text-gray-600">ครั้งที่ทำแบบทดสอบ</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-3">
+                            <div class="text-2xl font-bold text-green-600" id="avg-score-home">0</div>
+                            <div class="text-sm text-gray-600">คะแนนเฉลี่ย</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-3">
+                            <div class="text-2xl font-bold text-purple-600" id="best-score-home">0</div>
+                            <div class="text-sm text-gray-600">คะแนนสูงสุด</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-3">
+                            <div class="text-2xl font-bold text-orange-600" id="accuracy-home">0%</div>
+                            <div class="text-sm text-gray-600">ความแม่นยำ</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-4 px-8 rounded-xl text-lg transition duration-300 transform hover:scale-105 mr-4" onclick="switchTab('learn')">
+                        📚 เริ่มเรียนรู้
+                    </button>
+                    <button class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-xl text-lg transition duration-300 transform hover:scale-105" onclick="switchTab('quiz')">
+                        🎮 ทดสอบความรู้
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Learning Tab -->
+        <div id="learn-tab" class="tab-content hidden">
+            <div class="space-y-8">
+                <!-- Topic 1: Visual Elements -->
+                <div class="topic-section">
+                    <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">• ทัศนธาตุ (Visual Elements)</h2>
+                    <p class="text-lg text-gray-600 text-center mb-8">
+                        ทัศนธาตุเป็นองค์ประกอบพื้นฐานที่มองเห็นได้ในงานศิลปะ ประกอบด้วย 9 องค์ประกอบหลัก
+                    </p>
+                    
+                    <div class="element-grid">
+                        <div class="bg-blue-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-blue-800 mb-3 text-xl">1. จุด (Point)</h4>
+                            <div class="visual-demo">
+                                <div style="width: 8px; height: 8px; border-radius: 50%; background: #667eea; margin: 2px; display: inline-block;"></div>
+                                <div style="width: 12px; height: 12px; border-radius: 50%; background: #764ba2; margin: 2px; display: inline-block;"></div>
+                                <div style="width: 16px; height: 16px; border-radius: 50%; background: #f093fb; margin: 2px; display: inline-block;"></div>
+                            </div>
+                            <p class="text-sm text-blue-700">จุดเป็นทัศนธาตุที่เล็กที่สุด เป็นจุดเริ่มต้นของการสร้างสรรค์งานศิลปะ</p>
+                        </div>
+                        
+                        <div class="bg-purple-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-purple-800 mb-3 text-xl">2. เส้น (Line)</h4>
+                            <div class="visual-demo">
+                                <div style="width: 100px; height: 2px; background: #667eea; margin: 5px;"></div>
+                                <div style="width: 80px; height: 3px; background: #764ba2; margin: 5px; border-radius: 2px;"></div>
+                                <div style="width: 90px; height: 2px; background: #f093fb; margin: 5px; transform: rotate(15deg);"></div>
+                            </div>
+                            <p class="text-sm text-purple-700">เส้นเกิดจากการเรียงต่อของจุด มีทิศทาง ความยาว และสร้างรูปร่าง</p>
+                        </div>
+                        
+                        <div class="bg-green-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-green-800 mb-3 text-xl">3. รูปร่าง (Shape)</h4>
+                            <div class="visual-demo">
+                                <div style="width: 40px; height: 40px; background: #667eea; border-radius: 50%; margin: 5px;"></div>
+                                <div style="width: 40px; height: 40px; background: #764ba2; margin: 5px;"></div>
+                                <div style="width: 40px; height: 40px; background: #f093fb; margin: 5px; clip-path: polygon(50% 0%, 0% 100%, 100% 100%);"></div>
+                            </div>
+                            <p class="text-sm text-green-700">รูปร่างมี 2 มิติ (กว้าง-ยาว) เกิดจากการปิดล้อมของเส้น</p>
+                        </div>
+                        
+                        <div class="bg-red-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-red-800 mb-3 text-xl">4. รูปทรง (Form)</h4>
+                            <div class="visual-demo">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea, #333); border-radius: 50%; margin: 5px;"></div>
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #764ba2, #333); margin: 5px;"></div>
+                            </div>
+                            <p class="text-sm text-red-700">รูปทรงมี 3 มิติ (กว้าง-ยาว-ลึก) เกิดจากแสงเงาและการสร้างมิติ</p>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-yellow-800 mb-3 text-xl">5. ขนาดและสัดส่วน</h4>
+                            <div class="visual-demo">
+                                <div style="width: 20px; height: 20px; background: #667eea; border-radius: 50%; margin: 5px;"></div>
+                                <div style="width: 35px; height: 35px; background: #764ba2; border-radius: 50%; margin: 5px;"></div>
+                                <div style="width: 50px; height: 50px; background: #f093fb; border-radius: 50%; margin: 5px;"></div>
+                            </div>
+                            <p class="text-sm text-yellow-700">ความสัมพันธ์ของขนาดระหว่างองค์ประกอบต่างๆ ในงานศิลปะ</p>
+                        </div>
+                        
+                        <div class="bg-pink-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-pink-800 mb-3 text-xl">6. สี (Color)</h4>
+                            <div class="visual-demo">
+                                <div style="width: 30px; height: 30px; background: #ef4444; border-radius: 4px; margin: 3px;"></div>
+                                <div style="width: 30px; height: 30px; background: #22c55e; border-radius: 4px; margin: 3px;"></div>
+                                <div style="width: 30px; height: 30px; background: #3b82f6; border-radius: 4px; margin: 3px;"></div>
+                                <div style="width: 30px; height: 30px; background: #f59e0b; border-radius: 4px; margin: 3px;"></div>
+                            </div>
+                            <p class="text-sm text-pink-700">สร้างอารมณ์ ความรู้สึก และความหมายในงานศิลปะ</p>
+                        </div>
+                        
+                        <div class="bg-indigo-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-indigo-800 mb-3 text-xl">7. แสงเงา (Light & Shadow)</h4>
+                            <div class="visual-demo">
+                                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #ffffff, #666666); border-radius: 50%; margin: 5px;"></div>
+                            </div>
+                            <p class="text-sm text-indigo-700">สร้างมิติ ปริมาตร และความเหมือนจริงให้กับงานศิลปะ</p>
+                        </div>
+                        
+                        <div class="bg-cyan-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-cyan-800 mb-3 text-xl">8. บริเวณว่าง (Space)</h4>
+                            <div class="visual-demo">
+                                <div style="width: 40px; height: 40px; background: #667eea; border-radius: 50%; margin: 20px;"></div>
+                            </div>
+                            <p class="text-sm text-cyan-700">พื้นที่ว่างรอบๆ วัตถุ (Negative Space) และพื้นที่ที่มีวัตถุ (Positive Space)</p>
+                        </div>
+                        
+                        <div class="bg-orange-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-orange-800 mb-3 text-xl">9. พื้นผิว (Texture)</h4>
+                            <div class="visual-demo">
+                                <div style="width: 40px; height: 40px; background: linear-gradient(45deg, #667eea 25%, transparent 25%), linear-gradient(-45deg, #667eea 25%, transparent 25%); background-size: 8px 8px; margin: 5px;"></div>
+                                <div style="width: 40px; height: 40px; background: #764ba2; margin: 5px; border-radius: 4px;"></div>
+                            </div>
+                            <p class="text-sm text-orange-700">ลักษณะผิวของวัตถุ เช่น เรียบ หยาบ นุ่ม แข็ง</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Topic 2: Art Composition -->
+                <div class="topic-section">
+                    <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">⚖️ หลักการจัดองค์ประกอบศิลป์</h2>
+                    <p class="text-lg text-gray-600 text-center mb-8">
+                        หลักการในการจัดวางองค์ประกอบต่างๆ ให้เกิดความสวยงามและสื่อความหมาย ประกอบด้วย 7 หลักการ
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-pink-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-pink-800 mb-3 text-xl">1. เอกภาพ (Unity)</h4>
+                            <div class="visual-demo">
+                                <div style="width: 30px; height: 30px; background: #667eea; border-radius: 50%; margin: 2px;"></div>
+                                <div style="width: 30px; height: 30px; background: #667eea; border-radius: 50%; margin: 2px;"></div>
+                                <div style="width: 30px; height: 30px; background: #667eea; border-radius: 50%; margin: 2px;"></div>
+                            </div>
+                            <p class="text-sm text-pink-700">การจัดองค์ประกอบให้มีความเป็นอันหนึ่งอันเดียวกัน กลมกลืน สัมพันธ์กัน และไม่กระจัดกระจาย</p>
+                        </div>
+                        
+                        <div class="bg-blue-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-blue-800 mb-3 text-xl">2. ความสมดุล (Balance)</h4>
+                            <div class="visual-demo">
+                                <div style="display: flex; justify-content: space-between; width: 100px;">
+                                    <div style="width: 25px; height: 25px; background: #667eea; border-radius: 50%;"></div>
+                                    <div style="width: 25px; height: 25px; background: #667eea; border-radius: 50%;"></div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-blue-700">การจัดองค์ประกอบให้เกิดความรู้สึกเท่าเทียมกัน หรือสมดุลทั้งซ้ายขวา หรือบนล่าง</p>
+                        </div>
+                        
+                        <div class="bg-green-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-green-800 mb-3 text-xl">3. จุดเด่น (Dominance)</h4>
+                            <div class="visual-demo">
+                                <div style="width: 20px; height: 20px; background: #cccccc; border-radius: 50%; margin: 2px; display: inline-block;"></div>
+                                <div style="width: 40px; height: 40px; background: #ef4444; border-radius: 50%; margin: 2px; display: inline-block;"></div>
+                                <div style="width: 20px; height: 20px; background: #cccccc; border-radius: 50%; margin: 2px; display: inline-block;"></div>
+                            </div>
+                            <p class="text-sm text-green-700">การเน้นส่วนสำคัญของภาพให้เด่นออกมา เพื่อดึงดูดความสนใจ</p>
+                        </div>
+                        
+                        <div class="bg-purple-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-purple-800 mb-3 text-xl">4. ความกลมกลืน (Harmony)</h4>
+                            <div class="visual-demo">
+                                <div style="width: 25px; height: 25px; background: #667eea; border-radius: 50%; margin: 2px; display: inline-block;"></div>
+                                <div style="width: 25px; height: 25px; background: #764ba2; border-radius: 50%; margin: 2px; display: inline-block;"></div>
+                                <div style="width: 25px; height: 25px; background: #8b5cf6; border-radius: 50%; margin: 2px; display: inline-block;"></div>
+                            </div>
+                            <p class="text-sm text-purple-700">การจัดองค์ประกอบให้มีความสอดคล้องกัน ไม่ขัดแย้ง หรือกลมกลืนกัน</p>
+                        </div>
+                        
+                        <div class="bg-red-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-red-800 mb-3 text-xl">5. ความขัดแย้ง (Contrast)</h4>
+                            <div class="visual-demo">
+                                <div style="width: 30px; height: 30px; background: #000000; border-radius: 50%; margin: 2px; display: inline-block;"></div>
+                                <div style="width: 30px; height: 30px; background: #ffffff; border: 2px solid #000; border-radius: 50%; margin: 2px; display: inline-block;"></div>
+                            </div>
+                            <p class="text-sm text-red-700">การใช้ความแตกต่างขององค์ประกอบต่างๆ เพื่อสร้างจุดสนใจ และความน่าสนใจ</p>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-yellow-800 mb-3 text-xl">6. สัดส่วน (Proportion)</h4>
+                            <div class="visual-demo">
+                                <div style="width: 15px; height: 15px; background: #667eea; border-radius: 50%; margin: 2px; display: inline-block;"></div>
+                                <div style="width: 25px; height: 25px; background: #667eea; border-radius: 50%; margin: 2px; display: inline-block;"></div>
+                                <div style="width: 35px; height: 35px; background: #667eea; border-radius: 50%; margin: 2px; display: inline-block;"></div>
+                            </div>
+                            <p class="text-sm text-yellow-700">การจัดขนาดและสัดส่วนขององค์ประกอบต่างๆ ให้มีความสัมพันธ์กันอย่างเหมาะสม</p>
+                        </div>
+                        
+                        <div class="bg-indigo-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-indigo-800 mb-3 text-xl">7. จังหวะและลีลา (Rhythm)</h4>
+                            <div class="visual-demo">
+                                <div style="width: 20px; height: 20px; background: #667eea; border-radius: 50%; margin: 5px; display: inline-block;"></div>
+                                <div style="width: 25px; height: 25px; background: #764ba2; border-radius: 50%; margin: 5px; display: inline-block;"></div>
+                                <div style="width: 20px; height: 20px; background: #667eea; border-radius: 50%; margin: 5px; display: inline-block;"></div>
+                                <div style="width: 25px; height: 25px; background: #764ba2; border-radius: 50%; margin: 5px; display: inline-block;"></div>
+                            </div>
+                            <p class="text-sm text-indigo-700">การจัดองค์ประกอบให้เกิดการเคลื่อนไหว หรือจังหวะที่ต่อเนื่องกัน</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Topic 3: Perspective -->
+                <div class="topic-section">
+                    <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">📐 หลักการวาดภาพแบบทัศนียภาพ (Perspective)</h2>
+                    <p class="text-lg text-gray-600 text-center mb-8">
+                        เทคนิคการวาดภาพให้มีความลึกและมิติ โดยใช้จุดรวมสายตา (Vanishing Point) ประกอบด้วย 3 ประเภทหลัก
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-cyan-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-cyan-800 mb-3 text-xl">Perspective 1 จุด</h4>
+                            <div class="w-full h-32 bg-gradient-to-r from-cyan-200 to-cyan-300 rounded mb-4 relative overflow-hidden">
+                                <div class="absolute top-1/2 right-4 w-3 h-3 bg-red-500 rounded-full transform -translate-y-1/2"></div>
+                                <div class="absolute bottom-2 left-2 w-16 h-8 bg-cyan-400 transform perspective-1"></div>
+                                <div class="absolute bottom-2 right-8 w-8 h-4 bg-cyan-400"></div>
+                            </div>
+                            <p class="text-sm text-cyan-700 mb-2"><strong>ใช้เมื่อ:</strong> มองจากด้านหน้าตรง</p>
+                            <p class="text-sm text-cyan-700 mb-2"><strong>เหมาะสำหรับ:</strong> ถนน ทางเดิน ห้องโถง</p>
+                            <p class="text-sm text-cyan-700"><strong>ลักษณะ:</strong> ง่ายที่สุดในการวาด</p>
+                        </div>
+                        
+                        <div class="bg-purple-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-purple-800 mb-3 text-xl">Perspective 2 จุด</h4>
+                            <div class="w-full h-32 bg-gradient-to-r from-purple-200 to-purple-300 rounded mb-4 relative overflow-hidden">
+                                <div class="absolute top-1/2 left-2 w-3 h-3 bg-red-500 rounded-full transform -translate-y-1/2"></div>
+                                <div class="absolute top-1/2 right-2 w-3 h-3 bg-red-500 rounded-full transform -translate-y-1/2"></div>
+                                <div class="absolute bottom-4 left-1/2 w-12 h-16 bg-purple-400 transform -translate-x-1/2"></div>
+                            </div>
+                            <p class="text-sm text-purple-700 mb-2"><strong>ใช้เมื่อ:</strong> มองจากมุม</p>
+                            <p class="text-sm text-purple-700 mb-2"><strong>เหมาะสำหรับ:</strong> อาคาร บ้าน</p>
+                            <p class="text-sm text-purple-700"><strong>ลักษณะ:</strong> เห็นสองด้านของวัตถุ</p>
+                        </div>
+                        
+                        <div class="bg-orange-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-orange-800 mb-3 text-xl">Perspective 3 จุด</h4>
+                            <div class="w-full h-32 bg-gradient-to-r from-orange-200 to-orange-300 rounded mb-4 relative overflow-hidden">
+                                <div class="absolute top-1 left-1/2 w-3 h-3 bg-red-500 rounded-full transform -translate-x-1/2"></div>
+                                <div class="absolute top-1/2 left-2 w-3 h-3 bg-red-500 rounded-full transform -translate-y-1/2"></div>
+                                <div class="absolute top-1/2 right-2 w-3 h-3 bg-red-500 rounded-full transform -translate-y-1/2"></div>
+                                <div class="absolute bottom-6 left-1/2 w-8 h-12 bg-orange-400 transform -translate-x-1/2"></div>
+                            </div>
+                            <p class="text-sm text-orange-700 mb-2"><strong>ใช้เมื่อ:</strong> มองจากด้านบนหรือล่าง</p>
+                            <p class="text-sm text-orange-700 mb-2"><strong>เหมาะสำหรับ:</strong> ตึกสูง มุมมองนก</p>
+                            <p class="text-sm text-orange-700"><strong>ลักษณะ:</strong> ให้ความรู้สึกยิ่งใหญ่</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Topic 4: Color Theory -->
+                <div class="topic-section">
+                    <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">🌈 ทฤษฎีสีและการใช้สี</h2>
+                    <p class="text-lg text-gray-600 text-center mb-8">
+                        ความรู้เกี่ยวกับสีและการใช้สีในงานศิลปะ เพื่อสร้างอารมณ์และความงาม
+                    </p>
+                    
+                    <!-- Color Wheel -->
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-bold mb-4 text-red-600 text-center">🎨 วงล้อสี (Color Wheel)</h3>
+                        <div class="text-center">
+                            <div class="color-wheel mx-auto mb-4"></div>
+                            <div class="bg-red-50 p-6 rounded-lg max-w-3xl mx-auto">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <h4 class="font-semibold text-red-800 mb-2">สีขั้นที่ 1 (Primary)</h4>
+                                        <p class="text-red-700">แดง เหลือง น้ำเงิน<br>(ไม่สามารถผสมได้)</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-red-800 mb-2">สีขั้นที่ 2 (Secondary)</h4>
+                                        <p class="text-red-700">ส้ม เขียว ม่วง<br>(ผสมจากสีขั้นที่ 1)</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-red-800 mb-2">สีขั้นที่ 3 (Tertiary)</h4>
+                                        <p class="text-red-700">ผสมระหว่างสีขั้นที่ 1<br>และสีขั้นที่ 2</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Warm and Cool Colors -->
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-bold mb-4 text-orange-600 text-center">🔥❄️ สีโทนร้อนและโทนเย็น</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-orange-50 p-6 rounded-lg">
+                                <h4 class="font-semibold text-orange-800 mb-4 text-center">🔥 สีโทนร้อน (Warm Colors)</h4>
+                                <div class="color-demo">
+                                    <div class="color-box" style="background: #ff6b6b;"></div>
+                                    <div class="color-box" style="background: #ffa500;"></div>
+                                    <div class="color-box" style="background: #ffff00;"></div>
+                                </div>
+                                <ul class="text-sm text-orange-700 space-y-1">
+                                    <li>• <strong>สี:</strong> แดง ส้ม เหลือง</li>
+                                    <li>• <strong>ความรู้สึก:</strong> อบอุ่น มีพลังงาน</li>
+                                    <li>• <strong>คุณสมบัติ:</strong> ดึงดูดความสนใจ</li>
+                                    <li>• <strong>การใช้:</strong> สร้างจุดเด่น</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-blue-50 p-6 rounded-lg">
+                                <h4 class="font-semibold text-blue-800 mb-4 text-center">❄️ สีโทนเย็น (Cool Colors)</h4>
+                                <div class="color-demo">
+                                    <div class="color-box" style="background: #4ecdc4;"></div>
+                                    <div class="color-box" style="background: #45b7d1;"></div>
+                                    <div class="color-box" style="background: #6c5ce7;"></div>
+                                </div>
+                                <ul class="text-sm text-blue-700 space-y-1">
+                                    <li>• <strong>สี:</strong> เขียว น้ำเงิน ม่วง</li>
+                                    <li>• <strong>ความรู้สึก:</strong> เย็นสบาย สงบ</li>
+                                    <li>• <strong>คุณสมบัติ:</strong> สร้างความรู้สึกห่างไกล</li>
+                                    <li>• <strong>การใช้:</strong> เหมาะสำหรับพื้นหลัง</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Color Relationships -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Complementary Colors -->
+                        <div class="bg-purple-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-purple-800 mb-4 text-center">🎭 สีคู่ตรงข้าม</h4>
+                            <div class="flex justify-center gap-4 mb-4">
+                                <div class="flex gap-1">
+                                    <div class="color-box w-8 h-8" style="background: #ff0000;"></div>
+                                    <div class="color-box w-8 h-8" style="background: #00ff00;"></div>
+                                </div>
+                                <div class="flex gap-1">
+                                    <div class="color-box w-8 h-8" style="background: #0000ff;"></div>
+                                    <div class="color-box w-8 h-8" style="background: #ffa500;"></div>
+                                </div>
+                                <div class="flex gap-1">
+                                    <div class="color-box w-8 h-8" style="background: #ffff00;"></div>
+                                    <div class="color-box w-8 h-8" style="background: #8000ff;"></div>
+                                </div>
+                            </div>
+                            <ul class="text-sm text-purple-700 space-y-1">
+                                <li>• อยู่ตรงข้ามกันในวงล้อสี</li>
+                                <li>• สร้างความขัดแย้งสูงสุด</li>
+                                <li>• ใช้สร้างจุดเด่น</li>
+                                <li>• เมื่อผสมกันได้สีเทา</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Analogous Colors -->
+                        <div class="bg-green-50 p-6 rounded-lg">
+                            <h4 class="font-semibold text-green-800 mb-4 text-center">🌿 สีคุมโทน</h4>
+                            <div class="color-demo mb-4">
+                                <div class="color-box" style="background: #ff0000;"></div>
+                                <div class="color-box" style="background: #ff8000;"></div>
+                                <div class="color-box" style="background: #ffff00;"></div>
+                            </div>
+                            <ul class="text-sm text-green-700 space-y-1">
+                                <li>• สีที่อยู่ติดกันในวงล้อสี</li>
+                                <li>• สร้างความกลมกลืนและสงบ</li>
+                                <li>• ใช้ 2-4 สีในชุดเดียว</li>
+                                <li>• เหมาะสำหรับงานที่ต้องการความสุขุม</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-4 px-8 rounded-xl text-lg transition duration-300 transform hover:scale-105" onclick="switchTab('quiz')">
+                        🎮 ทดสอบความรู้
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quiz Tab -->
+        <div id="quiz-tab" class="tab-content hidden">
+            <div class="learning-card rounded-2xl shadow-2xl p-8">
+                <!-- Quiz Selection -->
+                <div id="quiz-selection" class="text-center">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-800">🎮 ทดสอบความรู้ทัศนศิลป์</h2>
+                    
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-xl p-6 mb-8">
+                        <div class="flex items-center justify-center gap-4 mb-4">
+                            <div class="text-4xl">🔀</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">ระบบสุ่มคำถาม</h3>
+                                <p class="text-gray-600">คำถามและตัวเลือกจะสุ่มใหม่ทุกครั้งที่เริ่มทำแบบทดสอบ</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-2xl font-semibold mb-6 text-gray-700">เลือกหัวข้อที่ต้องการทดสอบ</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-8">
+                        <div class="topic-quiz-card bg-gradient-to-br from-blue-500 to-purple-600 text-white p-6 rounded-xl cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl" onclick="startTopicQuiz('visual-elements')">
+                            <div class="text-5xl mb-4">•</div>
+                            <h4 class="text-xl font-bold mb-3">ทัศนธาตุ</h4>
+                            <p class="text-sm opacity-90 mb-4">จุด เส้น รูปร่าง รูปทรง ขนาดและสัดส่วน สี แสงเงา บริเวณว่าง และพื้นผิว</p>
+                            <div class="flex justify-between text-xs">
+                                <span>📝 20 ข้อ</span>
+                                <span>⏱️ ไม่จำกัดเวลา</span>
+                            </div>
+                        </div>
+                        
+                        <div class="topic-quiz-card bg-gradient-to-br from-pink-500 to-red-600 text-white p-6 rounded-xl cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl" onclick="startTopicQuiz('composition')">
+                            <div class="text-5xl mb-4">⚖️</div>
+                            <h4 class="text-xl font-bold mb-3">หลักการจัดองค์ประกอบศิลป์</h4>
+                            <p class="text-sm opacity-90 mb-4">เอกภาพ ความสมดุล จุดเด่น ความกลมกลืน ความขัดแย้ง สัดส่วน จังหวะและลีลา</p>
+                            <div class="flex justify-between text-xs">
+                                <span>📝 20 ข้อ</span>
+                                <span>⏱️ ไม่จำกัดเวลา</span>
+                            </div>
+                        </div>
+                        
+                        <div class="topic-quiz-card bg-gradient-to-br from-cyan-500 to-blue-600 text-white p-6 rounded-xl cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl" onclick="startTopicQuiz('perspective')">
+                            <div class="text-5xl mb-4">📐</div>
+                            <h4 class="text-xl font-bold mb-3">หลักการวาดภาพแบบทัศนียภาพ</h4>
+                            <p class="text-sm opacity-90 mb-4">Perspective 1 จุด 2 จุด และ 3 จุดรวมสายตา</p>
+                            <div class="flex justify-between text-xs">
+                                <span>📝 20 ข้อ</span>
+                                <span>⏱️ ไม่จำกัดเวลา</span>
+                            </div>
+                        </div>
+                        
+                        <div class="topic-quiz-card bg-gradient-to-br from-green-500 to-teal-600 text-white p-6 rounded-xl cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl" onclick="startTopicQuiz('color-theory')">
+                            <div class="text-5xl mb-4">🌈</div>
+                            <h4 class="text-xl font-bold mb-3">ทฤษฎีสีและการใช้สี</h4>
+                            <p class="text-sm opacity-90 mb-4">วงล้อสี สีโทนร้อน-เย็น สีคุมโทน สีคู่ตรงข้าม</p>
+                            <div class="flex justify-between text-xs">
+                                <span>📝 20 ข้อ</span>
+                                <span>⏱️ ไม่จำกัดเวลา</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl p-6">
+                        <div class="flex items-center justify-center gap-4 mb-4">
+                            <div class="text-4xl">🎯</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">แบบทดสอบรวม</h3>
+                                <p class="text-gray-600">ทดสอบความรู้จากทุกหัวข้อ 20 ข้อ</p>
+                            </div>
+                        </div>
+                        <button id="start-mixed-quiz-btn" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-xl transition duration-300 transform hover:scale-105">
+                            🚀 เริ่มทำแบบทดสอบรวม
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Quiz Interface -->
+                <div id="quiz-interface" class="hidden">
+                    <!-- Progress Bar -->
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="relative w-16 h-16">
+                                <svg class="progress-ring w-16 h-16" viewBox="0 0 120 120">
+                                    <circle class="progress-ring-circle stroke-gray-200" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
+                                    <circle id="progress-circle" class="progress-ring-circle stroke-blue-500" stroke-width="8" fill="transparent" r="52" cx="60" cy="60" stroke-dasharray="326.73" stroke-dashoffset="326.73"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span id="progress-text" class="text-sm font-bold text-blue-500">0%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-600">ข้อที่ <span id="current-question-num">1</span> จาก <span id="total-questions-num">20</span></div>
+                                <div class="text-lg font-semibold">คะแนน: <span id="current-score">0</span></div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-green-600" id="correct-answers">0</div>
+                                <div class="text-xs text-gray-600">ถูก</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-red-600" id="wrong-answers">0</div>
+                                <div class="text-xs text-gray-600">ผิด</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Question Display -->
+                    <div id="quiz-question-display">
+                        <div class="mb-8">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-2">
+                                    <span id="question-topic-icon" class="text-2xl"></span>
+                                    <span id="question-topic" class="text-lg font-semibold text-blue-600"></span>
+                                </div>
+                                <div id="question-difficulty" class="difficulty-badge"></div>
+                            </div>
+                            
+                            <h3 id="question-title" class="text-2xl font-bold mb-6 text-center"></h3>
+                            <div id="question-visual" class="flex justify-center mb-6">
+                                <!-- Visual elements will be inserted here -->
+                            </div>
+                        </div>
+                        
+                        <div id="quiz-options" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                            <!-- Options will be inserted here -->
+                        </div>
+                        
+                        <div id="quiz-feedback" class="hidden text-center py-6">
+                            <div id="feedback-icon" class="text-6xl mb-4"></div>
+                            <div id="feedback-text" class="text-xl font-semibold mb-4"></div>
+                            <div id="feedback-explanation" class="text-gray-600 mb-6 max-w-2xl mx-auto"></div>
+                            <button id="next-question-btn" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300">
+                                คำถามถัดไป →
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Results Display -->
+                    <div id="quiz-results" class="hidden text-center py-12">
+                        <div id="results-icon" class="text-8xl mb-6"></div>
+                        <h2 class="text-3xl font-bold mb-4 text-gray-800">ผลการทดสอบ</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-8">
+                            <div class="stats-card" style="--bg-start: #667eea; --bg-end: #764ba2;">
+                                <div class="text-3xl font-bold" id="final-score">0</div>
+                                <div class="text-sm opacity-90">คะแนนรวม</div>
+                            </div>
+                            <div class="stats-card" style="--bg-start: #10b981; --bg-end: #059669;">
+                                <div class="text-3xl font-bold" id="final-correct">0</div>
+                                <div class="text-sm opacity-90">ตอบถูก</div>
+                            </div>
+                            <div class="stats-card" style="--bg-start: #ef4444; --bg-end: #dc2626;">
+                                <div class="text-3xl font-bold" id="final-wrong">0</div>
+                                <div class="text-sm opacity-90">ตอบผิด</div>
+                            </div>
+                            <div class="stats-card" style="--bg-start: #f59e0b; --bg-end: #d97706;">
+                                <div class="text-3xl font-bold" id="final-percentage">0%</div>
+                                <div class="text-sm opacity-90">เปอร์เซ็นต์</div>
+                            </div>
+                        </div>
+                        
+                        <div id="performance-message" class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto"></div>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <button id="retake-quiz-btn" class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-xl transition duration-300">
+                                🔄 ทำแบบทดสอบอีกครั้ง
+                            </button>
+                            <button id="view-stats-btn" class="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-bold py-3 px-6 rounded-xl transition duration-300">
+                                📊 ดูสถิติ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistics Tab -->
+        <div id="stats-tab" class="tab-content hidden">
+            <div class="learning-card rounded-2xl shadow-2xl p-8">
+                <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">📊 สถิติการเรียนรู้</h2>
+                
+                <div id="no-stats" class="text-center py-12">
+                    <div class="text-6xl mb-4">📈</div>
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-600">ยังไม่มีข้อมูลสถิติ</h3>
+                    <p class="text-gray-500 mb-6">ทำแบบทดสอบเพื่อดูสถิติและผลการเรียนรู้</p>
+                    <button class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-xl transition duration-300" onclick="switchTab('quiz')">
+                        🎮 เริ่มทำแบบทดสอบ
+                    </button>
+                </div>
+                
+                <div id="stats-content" class="hidden">
+                    <!-- Overall Statistics -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="stats-card" style="--bg-start: #667eea; --bg-end: #764ba2;">
+                            <div class="text-3xl font-bold" id="total-attempts">0</div>
+                            <div class="text-sm opacity-90">ครั้งที่ทำแบบทดสอบ</div>
+                        </div>
+                        <div class="stats-card" style="--bg-start: #10b981; --bg-end: #059669;">
+                            <div class="text-3xl font-bold" id="avg-score">0</div>
+                            <div class="text-sm opacity-90">คะแนนเฉลี่ย</div>
+                        </div>
+                        <div class="stats-card" style="--bg-start: #8b5cf6; --bg-end: #7c3aed;">
+                            <div class="text-3xl font-bold" id="best-score">0</div>
+                            <div class="text-sm opacity-90">คะแนนสูงสุด</div>
+                        </div>
+                        <div class="stats-card" style="--bg-start: #f59e0b; --bg-end: #d97706;">
+                            <div class="text-3xl font-bold" id="accuracy">0%</div>
+                            <div class="text-sm opacity-90">ความแม่นยำ</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Topic Performance -->
+                    <div class="bg-white rounded-xl p-6 shadow-lg mb-8">
+                        <h3 class="text-xl font-semibold mb-4 text-center">📈 ผลการเรียนรู้แยกตามหัวข้อ</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="text-center p-4 bg-blue-50 rounded-lg">
+                                <div class="text-2xl mb-2">•</div>
+                                <div class="font-semibold text-blue-800">ทัศนธาตุ</div>
+                                <div class="text-sm text-blue-600" id="visual-elements-score">0%</div>
+                            </div>
+                            <div class="text-center p-4 bg-purple-50 rounded-lg">
+                                <div class="text-2xl mb-2">⚖️</div>
+                                <div class="font-semibold text-purple-800">องค์ประกอบศิลป์</div>
+                                <div class="text-sm text-purple-600" id="composition-score">0%</div>
+                            </div>
+                            <div class="text-center p-4 bg-cyan-50 rounded-lg">
+                                <div class="text-2xl mb-2">📐</div>
+                                <div class="font-semibold text-cyan-800">ทัศนียภาพ</div>
+                                <div class="text-sm text-cyan-600" id="perspective-score">0%</div>
+                            </div>
+                            <div class="text-center p-4 bg-pink-50 rounded-lg">
+                                <div class="text-2xl mb-2">🌈</div>
+                                <div class="font-semibold text-pink-800">ทฤษฎีสี</div>
+                                <div class="text-sm text-pink-600" id="color-theory-score">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent History -->
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <h3 class="text-xl font-semibold mb-4">📈 ประวัติการทำแบบทดสอบล่าสุด</h3>
+                        <div id="recent-history" class="space-y-3 max-h-64 overflow-y-auto">
+                            <!-- History items will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentTab = 'home';
+        let quizData = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        let wrongAnswers = 0;
+        let allResults = JSON.parse(localStorage.getItem('visualArtsResults')) || [];
+        
+        // Quiz questions database
+        const allQuestions = [
+            // Visual Elements Questions (20 questions)
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'easy',
+                question: 'จุดเป็นทัศนธาตุที่มีลักษณะอย่างไร?',
+                options: ['เป็นทัศนธาตุที่เล็กที่สุด', 'เป็นทัศนธาตุที่ใหญ่ที่สุด', 'มีเพียง 2 มิติ', 'มี 3 มิติ'],
+                correct: 0,
+                explanation: 'จุดเป็นทัศนธาตุที่เล็กที่สุดและเป็นจุดเริ่มต้นของการสร้างสรรค์งานศิลปะ',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'medium',
+                question: 'เส้นตรงให้ความรู้สึกอย่างไร?',
+                options: ['นุ่มนวล อ่อนหวาน', 'แข็งแกร่ง มั่นคง', 'เคลื่อนไหว มีพลังงาน', 'ลึกลับ น่าค้นหา'],
+                correct: 1,
+                explanation: 'เส้นตรงให้ความรู้สึกแข็งแกร่ง มั่นคง และเป็นระเบียบ',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'easy',
+                question: 'รูปร่าง (Shape) มีกี่มิติ?',
+                options: ['1 มิติ', '2 มิติ', '3 มิติ', '4 มิติ'],
+                correct: 1,
+                explanation: 'รูปร่าง (Shape) มี 2 มิติ คือ กว้างและยาว ไม่มีความลึก',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'medium',
+                question: 'รูปทรง (Form) เกิดขึ้นได้อย่างไร?',
+                options: ['จากการวาดเส้น', 'จากการใช้สี', 'จากแสงเงาและมิติ', 'จากการใช้จุด'],
+                correct: 2,
+                explanation: 'รูปทรง (Form) เกิดจากการใช้แสงเงาและการสร้างมิติ ทำให้เกิดความลึกและปริมาตร',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'hard',
+                question: 'ทัศนธาตุทั้งหมดมีกี่องค์ประกอบ?',
+                options: ['7 องค์ประกอบ', '8 องค์ประกอบ', '9 องค์ประกอบ', '10 องค์ประกอบ'],
+                correct: 2,
+                explanation: 'ทัศนธาตุประกอบด้วย 9 องค์ประกอบ คือ จุด เส้น รูปร่าง รูปทรง ขนาดและสัดส่วน สี แสงเงา บริเวณว่าง และพื้นผิว',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'easy',
+                question: 'เส้นโค้งให้ความรู้สึกอย่างไร?',
+                options: ['นุ่มนวล อ่อนหวาน', 'แข็งแกร่ง มั่นคง', 'เคลื่อนไหว รุนแรง', 'เศร้าโศก'],
+                correct: 0,
+                explanation: 'เส้นโค้งให้ความรู้สึกนุ่มนวล อ่อนหวาน และเป็นธรรมชาติ',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'medium',
+                question: 'เส้นแนวตั้งให้ความรู้สึกอย่างไร?',
+                options: ['สงบ เงียบ', 'สูงส่ง มีศักดิ์ศรี', 'เคลื่อนไหว', 'อ่อนแอ'],
+                correct: 1,
+                explanation: 'เส้นแนวตั้งให้ความรู้สึกสูงส่ง มีศักดิ์ศรี และแข็งแกร่ง',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'medium',
+                question: 'เส้นแนวนอนให้ความรู้สึกอย่างไร?',
+                options: ['เคลื่อนไหว', 'สงบ เงียบ', 'รุนแรง', 'ตื่นเต้น'],
+                correct: 1,
+                explanation: 'เส้นแนวนอนให้ความรู้สึกสงบ เงียบ และมีความสมดุล',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'easy',
+                question: 'พื้นผิวหยาบให้ความรู้สึกอย่างไร?',
+                options: ['นุ่มนวล', 'แข็งแกร่ง ทนทาน', 'เรียบเนียน', 'เปราะบาง'],
+                correct: 1,
+                explanation: 'พื้นผิวหยาบให้ความรู้สึกแข็งแกร่ง ทนทาน และมีความเป็นธรรมชาติ',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'medium',
+                question: 'บริเวณว่าง (Negative Space) คืออะไร?',
+                options: ['พื้นที่ที่มีวัตถุ', 'พื้นที่ว่างรอบๆ วัตถุ', 'พื้นที่สีดำ', 'พื้นที่ที่ไม่สำคัญ'],
+                correct: 1,
+                explanation: 'บริเวณว่าง (Negative Space) คือพื้นที่ว่างรอบๆ วัตถุ ซึ่งมีความสำคัญในการสร้างสมดุลให้กับงานศิลปะ',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'hard',
+                question: 'การใช้แสงเงาช่วยให้งานศิลปะมีอะไร?',
+                options: ['สีสันสวยงาม', 'มิติและปริมาตร', 'ความเรียบง่าย', 'ความรวดเร็ว'],
+                correct: 1,
+                explanation: 'การใช้แสงเงาช่วยให้งานศิลปะมีมิติและปริมาตร ทำให้ดูเหมือนจริงมากขึ้น',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'easy',
+                question: 'รูปทรงกลมให้ความรู้สึกอย่างไร?',
+                options: ['แข็งแกร่ง', 'นุ่มนวล อ่อนโยน', 'รุนแรง', 'เศร้าโศก'],
+                correct: 1,
+                explanation: 'รูปทรงกลมให้ความรู้สึกนุ่มนวล อ่อนโยน และเป็นมิตร',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'medium',
+                question: 'รูปทรงสี่เหลี่ยมให้ความรู้สึกอย่างไร?',
+                options: ['นุ่มนวล', 'มั่นคง แข็งแกร่ง', 'เคลื่อนไหว', 'อ่อนแอ'],
+                correct: 1,
+                explanation: 'รูปทรงสี่เหลี่ยมให้ความรู้สึกมั่นคง แข็งแกร่ง และเป็นระเบียบ',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'easy',
+                question: 'รูปสามเหลี่ยมให้ความรู้สึกอย่างไร?',
+                options: ['สงบ', 'พลังงาน เคลื่อนไหว', 'อ่อนแอ', 'เศร้าโศก'],
+                correct: 1,
+                explanation: 'รูปสามเหลี่ยมให้ความรู้สึกมีพลังงาน เคลื่อนไหว และมีทิศทาง',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'medium',
+                question: 'สีในทัศนธาตุมีคุณสมบัติกี่อย่าง?',
+                options: ['2 อย่าง', '3 อย่าง', '4 อย่าง', '5 อย่าง'],
+                correct: 1,
+                explanation: 'สีมีคุณสมบัติ 3 อย่าง คือ สีสัน (Hue) ความอิ่มตัว (Saturation) และความสว่าง (Value)',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'hard',
+                question: 'การจัดวางองค์ประกอบให้มีขนาดต่างกันเรียกว่าอะไร?',
+                options: ['ความสมดุล', 'การไล่ระดับ (Gradation)', 'ความขัดแย้ง', 'เอกภาพ'],
+                correct: 1,
+                explanation: 'การไล่ระดับ (Gradation) คือการจัดวางองค์ประกอบให้มีขนาดหรือสีที่เปลี่ยนแปลงไปอย่างค่อยเป็นค่อยไป',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'easy',
+                question: 'เส้นเฉียงให้ความรู้สึกอย่างไร?',
+                options: ['สงบ', 'เคลื่อนไหว พลังงาน', 'มั่นคง', 'เศร้าโศก'],
+                correct: 1,
+                explanation: 'เส้นเฉียงให้ความรู้สึกเคลื่อนไหว มีพลังงาน และความตื่นเต้น',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'medium',
+                question: 'พื้นผิวเรียบให้ความรู้สึกอย่างไร?',
+                options: ['หยาบกร้าน', 'นุ่มนวล เรียบเนียน', 'แข็งแกร่ง', 'รุนแรง'],
+                correct: 1,
+                explanation: 'พื้นผิวเรียบให้ความรู้สึกนุ่มนวล เรียบเนียน และสะอาด',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'hard',
+                question: 'ทัศนธาตุใดที่สามารถสร้างอารมณ์และความรู้สึกได้มากที่สุด?',
+                options: ['จุด', 'เส้น', 'สี', 'รูปร่าง'],
+                correct: 2,
+                explanation: 'สีเป็นทัศนธาตุที่สามารถสร้างอารมณ์และความรู้สึกได้มากที่สุด เพราะมีผลต่อจิตใจและอารมณ์ของผู้ชม',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'easy',
+                question: 'การใช้ขนาดใหญ่-เล็กในงานศิลปะช่วยสร้างอะไร?',
+                options: ['ความสวยงาม', 'ความลึกและมิติ', 'ความเรียบง่าย', 'ความรวดเร็ว'],
+                correct: 1,
+                explanation: 'การใช้ขนาดใหญ่-เล็กช่วยสร้างความลึกและมิติ ทำให้งานศิลปะดูมีชีวิตชีวา',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'medium',
+                question: 'Positive Space คืออะไร?',
+                options: ['พื้นที่ว่าง', 'พื้นที่ที่มีวัตถุ', 'พื้นที่สีขาว', 'พื้นที่ไม่สำคัญ'],
+                correct: 1,
+                explanation: 'Positive Space คือพื้นที่ที่มีวัตถุหรือองค์ประกอบหลักของงานศิลปะ',
+                category: 'visual-elements'
+            },
+            {
+                topic: 'ทัศนธาตุ',
+                icon: '•',
+                difficulty: 'hard',
+                question: 'การใช้ทัศนธาตุหลายอย่างร่วมกันจะช่วยให้งานศิลปะมีอะไร?',
+                options: ['ความซับซ้อน', 'ความสมบูรณ์และน่าสนใจ', 'ความยุ่งเหยิง', 'ความเรียบง่าย'],
+                correct: 1,
+                explanation: 'การใช้ทัศนธาตุหลายอย่างร่วมกันอย่างเหมาะสมจะช่วยให้งานศิลปะมีความสมบูรณ์และน่าสนใจมากขึ้น',
+                category: 'visual-elements'
+            },
+            
+            // Art Composition Questions (20 questions)
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'easy',
+                question: 'เอกภาพ (Unity) หมายถึงอะไร?',
+                options: ['การแยกส่วนต่างๆ', 'ความเป็นอันหนึ่งอันเดียวกัน', 'การใช้สีเดียว', 'การวาดรูปเดียว'],
+                correct: 1,
+                explanation: 'เอกภาพ (Unity) คือการจัดองค์ประกอบให้มีความเป็นอันหนึ่งอันเดียวกัน กลมกลืน และสัมพันธ์กัน',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'medium',
+                question: 'ความสมดุล (Balance) มีกี่ประเภท?',
+                options: ['1 ประเภท', '2 ประเภท', '3 ประเภท', '4 ประเภท'],
+                correct: 1,
+                explanation: 'ความสมดุลมี 2 ประเภทหลัก คือ สมดุลแบบสมมาตร (Symmetrical) และสมดุลแบบอสมมาตร (Asymmetrical)',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'easy',
+                question: 'จุดเด่น (Dominance) มีจุดประสงค์อะไร?',
+                options: ['ทำให้งานดูซับซ้อน', 'ดึงดูดความสนใจ', 'ประหยัดเวลา', 'ใช้สีน้อยลง'],
+                correct: 1,
+                explanation: 'จุดเด่น (Dominance) มีจุดประสงค์เพื่อเน้นส่วนสำคัญของภาพให้เด่นออกมาและดึงดูดความสนใจ',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'hard',
+                question: 'หลักการจัดองค์ประกอบศิลป์มีทั้งหมดกี่หลักการ?',
+                options: ['5 หลักการ', '6 หลักการ', '7 หลักการ', '8 หลักการ'],
+                correct: 2,
+                explanation: 'หลักการจัดองค์ประกอบศิลป์มี 7 หลักการ คือ เอกภาพ ความสมดุล จุดเด่น ความกลมกลืน ความขัดแย้ง สัดส่วน และจังหวะ',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'medium',
+                question: 'ความขัดแย้ง (Contrast) ใช้เพื่ออะไร?',
+                options: ['ทำให้งานดูเรียบง่าย', 'สร้างจุดสนใจ', 'ประหยัดวัสดุ', 'ทำให้งานเสร็จเร็ว'],
+                correct: 1,
+                explanation: 'ความขัดแย้ง (Contrast) ใช้เพื่อสร้างจุดสนใจและความน่าสนใจผ่านความแตกต่างขององค์ประกอบ',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'easy',
+                question: 'ความสมดุลแบบสมมาตร (Symmetrical Balance) คืออะไร?',
+                options: ['การจัดวางแบบไม่เท่ากัน', 'การจัดวางให้เหมือนกันทั้งสองข้าง', 'การใช้สีเดียว', 'การวาดรูปเดียว'],
+                correct: 1,
+                explanation: 'ความสมดุลแบบสมมาตรคือการจัดวางองค์ประกอบให้เหมือนกันหรือคล้ายกันทั้งสองข้างของแกนกลาง',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'medium',
+                question: 'ความสมดุลแบบอสมมาตร (Asymmetrical Balance) คืออะไร?',
+                options: ['การจัดวางให้เหมือนกัน', 'การจัดวางให้ต่างกันแต่ดูสมดุล', 'การไม่จัดวาง', 'การใช้สีเดียว'],
+                correct: 1,
+                explanation: 'ความสมดุลแบบอสมมาตรคือการจัดวางองค์ประกอบที่ต่างกันแต่ให้ความรู้สึกสมดุลผ่านน้ำหนักทางสายตา',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'easy',
+                question: 'จุดเด่น (Emphasis) สามารถสร้างได้ด้วยวิธีใด?',
+                options: ['ใช้สีเดียวทั้งหมด', 'ใช้ขนาดใหญ่หรือสีสดใส', 'ซ่อนไว้ในมุม', 'ทำให้เล็กที่สุด'],
+                correct: 1,
+                explanation: 'จุดเด่นสามารถสร้างได้ด้วยการใช้ขนาดใหญ่ สีสดใส ความขัดแย้ง หรือตำแหน่งที่โดดเด่น',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'medium',
+                question: 'ความกลมกลืน (Harmony) เกิดขึ้นได้อย่างไร?',
+                options: ['ใช้สีตรงข้าม', 'ใช้องค์ประกอบที่คล้ายกัน', 'ใช้ขนาดต่างกันมาก', 'ไม่มีการจัดวาง'],
+                correct: 1,
+                explanation: 'ความกลมกลืนเกิดจากการใช้องค์ประกอบที่มีความคล้ายคลึงกัน เช่น สีใกล้เคียง รูปร่างคล้ายกัน',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'hard',
+                question: 'จังหวะ (Rhythm) ในงานศิลปะเกิดจากอะไร?',
+                options: ['การใช้สีเดียว', 'การทำซ้ำของรูปแบบ', 'การไม่มีการจัดวาง', 'การใช้ขนาดเดียว'],
+                correct: 1,
+                explanation: 'จังหวะเกิดจากการทำซ้ำของรูปแบบ สี รูปร่าง หรือองค์ประกอบอื่นๆ อย่างสม่ำเสมอ',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'easy',
+                question: 'สัดส่วน (Proportion) หมายถึงอะไร?',
+                options: ['การใช้สีเดียว', 'ความสัมพันธ์ของขนาด', 'การวาดรูปเดียว', 'การไม่มีการจัดวาง'],
+                correct: 1,
+                explanation: 'สัดส่วนคือความสัมพันธ์ของขนาดระหว่างส่วนต่างๆ ในงานศิลปะ',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'medium',
+                question: 'การใช้ Rule of Thirds ช่วยสร้างอะไร?',
+                options: ['ความยุ่งเหยิง', 'จุดเด่นและความน่าสนใจ', 'ความเรียบง่าย', 'การประหยัดเวลา'],
+                correct: 1,
+                explanation: 'Rule of Thirds ช่วยสร้างจุดเด่นและความน่าสนใจโดยการวางองค์ประกอบสำคัญตามเส้นแบ่งสามส่วน',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'hard',
+                question: 'ความขัดแย้งสามารถสร้างได้ด้วยวิธีใดบ้าง?',
+                options: ['ใช้สีเดียวทั้งหมด', 'สี ขนาด รูปร่าง พื้นผิว', 'ไม่มีการจัดวาง', 'ใช้ขนาดเดียว'],
+                correct: 1,
+                explanation: 'ความขัดแย้งสามารถสร้างได้ด้วยการใช้ความแตกต่างของสี ขนาด รูปร่าง พื้นผิว หรือทิศทาง',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'easy',
+                question: 'การจัดองค์ประกอบแบบ Focal Point คืออะไร?',
+                options: ['การกระจายความสนใจ', 'การรวมความสนใจไว้จุดเดียว', 'การไม่มีจุดสนใจ', 'การใช้สีเดียว'],
+                correct: 1,
+                explanation: 'Focal Point คือการรวมความสนใจไว้ที่จุดเดียวเพื่อสร้างจุดเด่นหลักของงาน',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'medium',
+                question: 'ลีลา (Movement) ในงานศิลปะหมายถึงอะไร?',
+                options: ['การเคลื่อนไหวจริง', 'การนำสายตาไปตามทิศทาง', 'การหยุดนิ่ง', 'การใช้สีเดียว'],
+                correct: 1,
+                explanation: 'ลีลาคือการจัดองค์ประกอบให้สายตาเคลื่อนไหวไปตามทิศทางที่ต้องการในงานศิลปะ',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'hard',
+                question: 'การใช้ Golden Ratio ในงานศิลปะช่วยอะไร?',
+                options: ['ประหยัดเวลา', 'สร้างสัดส่วนที่สวยงาม', 'ใช้สีน้อยลง', 'ทำให้งานเสร็จเร็ว'],
+                correct: 1,
+                explanation: 'Golden Ratio (1:1.618) ช่วยสร้างสัดส่วนที่สวยงามและเป็นธรรมชาติตามหลักคณิตศาสตร์',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'easy',
+                question: 'ความสมดุลแบบรัศมี (Radial Balance) คืออะไร?',
+                options: ['การจัดวางตามแนวตรง', 'การจัดวางรอบจุดศูนย์กลาง', 'การไม่มีการจัดวาง', 'การใช้สีเดียว'],
+                correct: 1,
+                explanation: 'ความสมดุลแบบรัศมีคือการจัดวางองค์ประกอบรอบจุดศูนย์กลางเหมือนรัศมีของวงกลม',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'medium',
+                question: 'การใช้ Negative Space ช่วยสร้างอะไร?',
+                options: ['ความยุ่งเหยิง', 'ความสมดุลและจุดเด่น', 'ความซับซ้อน', 'การประหยัดเวลา'],
+                correct: 1,
+                explanation: 'Negative Space ช่วยสร้างความสมดุล เน้นจุดเด่น และให้งานมีการหายใจ',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'hard',
+                question: 'หลักการใดที่สำคัญที่สุดในการจัดองค์ประกอบศิลป์?',
+                options: ['ความขัดแย้ง', 'เอกภาพ', 'สัดส่วน', 'จังหวะ'],
+                correct: 1,
+                explanation: 'เอกภาพเป็นหลักการที่สำคัญที่สุด เพราะทำให้งานศิลปะมีความเป็นหนึ่งเดียวและสมบูรณ์',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'easy',
+                question: 'การทำซ้ำ (Repetition) ช่วยสร้างอะไร?',
+                options: ['ความยุ่งเหยิง', 'เอกภาพและจังหวะ', 'ความขัดแย้ง', 'การประหยัดเวลา'],
+                correct: 1,
+                explanation: 'การทำซ้ำช่วยสร้างเอกภาพและจังหวะ ทำให้งานมีความสอดคล้องและเป็นระเบียบ',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'medium',
+                question: 'การใช้ Leading Lines ช่วยอะไร?',
+                options: ['ทำให้สับสน', 'นำสายตาไปยังจุดเด่น', 'ประหยัดสี', 'ทำให้งานเสร็จเร็ว'],
+                correct: 1,
+                explanation: 'Leading Lines ช่วยนำสายตาของผู้ชมไปยังจุดเด่นหรือส่วนสำคัญของงาน',
+                category: 'composition'
+            },
+            {
+                topic: 'หลักการจัดองค์ประกอบศิลป์',
+                icon: '⚖️',
+                difficulty: 'hard',
+                question: 'การผสมผสานหลักการจัดองค์ประกอบหลายอย่างจะได้อะไร?',
+                options: ['ความยุ่งเหยิง', 'งานศิลปะที่สมบูรณ์', 'ความซับซ้อนเกินไป', 'การสูญเสียจุดเด่น'],
+                correct: 1,
+                explanation: 'การผสมผสานหลักการต่างๆ อย่างเหมาะสมจะได้งานศิลปะที่สมบูรณ์ น่าสนใจ และมีคุณค่า',
+                category: 'composition'
+            },
+            
+            // Perspective Questions (20 questions)
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'easy',
+                question: 'Perspective 1 จุดใช้เมื่อไหร่?',
+                options: ['มองจากมุม', 'มองจากด้านหน้าตรง', 'มองจากด้านบน', 'มองจากด้านข้าง'],
+                correct: 1,
+                explanation: 'Perspective 1 จุดใช้เมื่อมองวัตถุจากด้านหน้าตรง เหมาะสำหรับถนน ทางเดิน',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'medium',
+                question: 'Perspective 2 จุดมีจุดรวมสายตากี่จุด?',
+                options: ['1 จุด', '2 จุด', '3 จุด', '4 จุด'],
+                correct: 1,
+                explanation: 'Perspective 2 จุดมีจุดรวมสายตา 2 จุด ใช้เมื่อมองวัตถุจากมุม',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'easy',
+                question: 'Perspective 3 จุดใช้เมื่อไหร่?',
+                options: ['มองในระดับเดียวกัน', 'มองจากด้านบนหรือล่าง', 'มองจากด้านข้าง', 'มองจากด้านหลัง'],
+                correct: 1,
+                explanation: 'Perspective 3 จุดใช้เมื่อมองวัตถุจากด้านบนหรือด้านล่าง เหมาะสำหรับตึกสูง',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'medium',
+                question: 'Perspective ทั้งหมดมีกี่ประเภทหลัก?',
+                options: ['2 ประเภท', '3 ประเภท', '4 ประเภท', '5 ประเภท'],
+                correct: 1,
+                explanation: 'Perspective มี 3 ประเภทหลัก คือ 1 จุด 2 จุด และ 3 จุดรวมสายตา',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'hard',
+                question: 'Perspective 2 จุดเหมาะสำหรับวาดอะไรมากที่สุด?',
+                options: ['ถนน', 'อาคาร บ้าน', 'ตึกสูง', 'ทางเดิน'],
+                correct: 1,
+                explanation: 'Perspective 2 จุดเหมาะสำหรับวาดอาคาร บ้าน เพราะสามารถเห็นสองด้านของอาคาร',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'easy',
+                question: 'จุดรวมสายตา (Vanishing Point) คืออะไร?',
+                options: ['จุดที่วาดรูป', 'จุดที่เส้นขนานมาบรรจบกัน', 'จุดที่ใส่สี', 'จุดที่เริ่มวาด'],
+                correct: 1,
+                explanation: 'จุดรวมสายตาคือจุดที่เส้นขนานทั้งหมดมาบรรจบกันในภาพ',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'medium',
+                question: 'เส้นขอบฟ้า (Horizon Line) อยู่ที่ระดับใด?',
+                options: ['ระดับเท้า', 'ระดับสายตา', 'ระดับหัว', 'ระดับมือ'],
+                correct: 1,
+                explanation: 'เส้นขอบฟ้าอยู่ที่ระดับสายตาของผู้วาดหรือผู้ชม',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'easy',
+                question: 'Perspective 1 จุดเหมาะสำหรับวาดอะไร?',
+                options: ['อาคารจากมุม', 'ถนนตรง ทางเดิน', 'ตึกสูงจากล่าง', 'บ้านจากข้าง'],
+                correct: 1,
+                explanation: 'Perspective 1 จุดเหมาะสำหรับวาดถนนตรง ทางเดิน ห้องโถง ที่มองจากด้านหน้า',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'medium',
+                question: 'ใน Perspective 2 จุด จุดรวมสายตาอยู่ที่ไหน?',
+                options: ['กลางภาพ', 'ซ้ายและขวาของภาพ', 'บนและล่างของภาพ', 'มุมภาพ'],
+                correct: 1,
+                explanation: 'ใน Perspective 2 จุด จุดรวมสายตาจะอยู่ทางซ้ายและขวาของภาพ',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'hard',
+                question: 'Perspective 3 จุดให้ความรู้สึกอย่างไร?',
+                options: ['สงบ', 'ยิ่งใหญ่ น่าประทับใจ', 'เรียบง่าย', 'น่าเบื่อ'],
+                correct: 1,
+                explanation: 'Perspective 3 จุดให้ความรู้สึกยิ่งใหญ่ น่าประทับใจ และมีพลัง',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'easy',
+                question: 'การวาด Perspective ช่วยสร้างอะไรให้กับภาพ?',
+                options: ['สีสัน', 'ความลึกและมิติ', 'ความเรียบง่าย', 'ความรวดเร็ว'],
+                correct: 1,
+                explanation: 'การวาด Perspective ช่วยสร้างความลึกและมิติให้กับภาพ ทำให้ดูเหมือนจริง',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'medium',
+                question: 'วัตถุที่อยู่ใกล้จะมีลักษณะอย่างไร?',
+                options: ['เล็กและจาง', 'ใหญ่และชัด', 'ขนาดเท่าเดิม', 'หายไป'],
+                correct: 1,
+                explanation: 'วัตถุที่อยู่ใกล้จะดูใหญ่และชัดเจน ส่วนวัตถุที่อยู่ไกลจะดูเล็กและจาง',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'easy',
+                question: 'วัตถุที่อยู่ไกลจะมีลักษณะอย่างไร?',
+                options: ['ใหญ่และชัด', 'เล็กและจาง', 'ขนาดเท่าเดิม', 'สีสดใส'],
+                correct: 1,
+                explanation: 'วัตถุที่อยู่ไกลจะดูเล็กลงและจางลง ตามหลักของ Atmospheric Perspective',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'hard',
+                question: 'Bird\'s Eye View คือการมองจากมุมใด?',
+                options: ['ระดับเดียวกัน', 'จากด้านล่างขึ้นบน', 'จากด้านบนลงล่าง', 'จากด้านข้าง'],
+                correct: 2,
+                explanation: 'Bird\'s Eye View คือการมองจากด้านบนลงล่าง เหมือนมุมมองของนก',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'medium',
+                question: 'Worm\'s Eye View คือการมองจากมุมใด?',
+                options: ['จากด้านบนลงล่าง', 'จากด้านล่างขึ้นบน', 'ระดับเดียวกัน', 'จากด้านข้าง'],
+                correct: 1,
+                explanation: 'Worm\'s Eye View คือการมองจากด้านล่างขึ้นบน เหมือนมุมมองของหนอน',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'easy',
+                question: 'เส้นที่ขนานกันในความเป็นจริงจะเป็นอย่างไรในภาพ Perspective?',
+                options: ['ยังคงขนาน', 'มาบรรจบกัน', 'แยกออกจากกัน', 'หายไป'],
+                correct: 1,
+                explanation: 'เส้นที่ขนานกันในความเป็นจริงจะมาบรรจบกันที่จุดรวมสายตาในภาพ Perspective',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'medium',
+                question: 'การวาดภาพ Perspective ช่วยให้ศิลปินทำอะไรได้?',
+                options: ['ประหยัดเวลา', 'สร้างภาพที่สมจริง', 'ใช้สีน้อยลง', 'วาดเร็วขึ้น'],
+                correct: 1,
+                explanation: 'การวาดภาพ Perspective ช่วยให้ศิลปินสร้างภาพที่มีความลึก มิติ และสมจริง',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'hard',
+                question: 'Atmospheric Perspective คืออะไร?',
+                options: ['การวาดอากาศ', 'การใช้สีและความชัดเพื่อแสดงระยะ', 'การวาดเมฆ', 'การใช้แสง'],
+                correct: 1,
+                explanation: 'Atmospheric Perspective คือการใช้สีและความชัดเจนเพื่อแสดงระยะไกล-ใกล',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'easy',
+                question: 'ใน Perspective 1 จุด เส้นแนวตั้งจะเป็นอย่างไร?',
+                options: ['เอียง', 'ยังคงตั้งตรง', 'โค้ง', 'หายไป'],
+                correct: 1,
+                explanation: 'ใน Perspective 1 จุด เส้นแนวตั้งจะยังคงตั้งตรงเหมือนเดิม',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'medium',
+                question: 'การใช้ Perspective ช่วยให้ผู้ชมรู้สึกอย่างไร?',
+                options: ['สับสน', 'เข้าใจพื้นที่และระยะ', 'เบื่อหน่าย', 'ไม่สนใจ'],
+                correct: 1,
+                explanation: 'การใช้ Perspective ช่วยให้ผู้ชมเข้าใจพื้นที่และระยะในภาพได้ดีขึ้น',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'hard',
+                question: 'การวาด Interior (ภายใน) เหมาะกับ Perspective แบบใด?',
+                options: ['1 จุด', '2 จุด', '3 จุด', 'ไม่ใช้ Perspective'],
+                correct: 0,
+                explanation: 'การวาด Interior มักใช้ Perspective 1 จุด เพราะมองจากด้านหน้าตรงเข้าไปในห้อง',
+                category: 'perspective'
+            },
+            {
+                topic: 'หลักการวาดภาพแบบทัศนียภาพ',
+                icon: '📐',
+                difficulty: 'medium',
+                question: 'ข้อดีของการเรียนรู้ Perspective คืออะไร?',
+                options: ['วาดเร็วขึ้น', 'สร้างภาพที่มีมิติและน่าเชื่อถือ', 'ใช้สีน้อยลง', 'ประหยัดกระดาษ'],
+                correct: 1,
+                explanation: 'การเรียนรู้ Perspective ช่วยให้สร้างภาพที่มีมิติ ความลึก และน่าเชื่อถือมากขึ้น',
+                category: 'perspective'
+            },
+            
+            // Color Theory Questions (20 questions)
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'easy',
+                question: 'สีขั้นที่ 1 (Primary Colors) ประกอบด้วยสีใดบ้าง?',
+                options: ['แดง เหลือง น้ำเงิน', 'ส้ม เขียว ม่วง', 'แดง เขียว น้ำเงิน', 'เหลือง ส้ม ชมพู'],
+                correct: 0,
+                explanation: 'สีขั้นที่ 1 คือ แดง เหลือง น้ำเงิน ซึ่งเป็นสีที่ไม่สามารถผสมจากสีอื่นได้',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'easy',
+                question: 'สีส้มเกิดจากการผสมสีใดบ้าง?',
+                options: ['แดง + น้ำเงิน', 'แดง + เหลือง', 'เหลือง + น้ำเงิน', 'แดง + ขาว'],
+                correct: 1,
+                explanation: 'สีส้มเกิดจากการผสมสีแดงกับสีเหลือง',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'easy',
+                question: 'สีโทนร้อน (Warm Colors) ประกอบด้วยสีใดบ้าง?',
+                options: ['แดง ส้ม เหลือง', 'เขียว น้ำเงิน ม่วง', 'ขาว เทา ดำ', 'ชมพู ฟ้า เขียวอ่อน'],
+                correct: 0,
+                explanation: 'สีโทนร้อนประกอบด้วย แดง ส้ม เหลือง ให้ความรู้สึกอบอุ่นและมีพลังงาน',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'easy',
+                question: 'สีโทนเย็น (Cool Colors) ประกอบด้วยสีใดบ้าง?',
+                options: ['แดง ส้ม เหลือง', 'เขียว น้ำเงิน ม่วง', 'ขาว เทา ดำ', 'น้ำตาล ครีม เบจ'],
+                correct: 1,
+                explanation: 'สีโทนเย็นประกอบด้วย เขียว น้ำเงิน ม่วง ให้ความรู้สึกเย็นสบายและสงบ',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'easy',
+                question: 'สีคู่ตรงข้าม (Complementary Colors) คืออะไร?',
+                options: ['สีที่อยู่ติดกัน', 'สีที่อยู่ตรงข้ามกันในวงล้อสี', 'สีที่เหมือนกัน', 'สีที่ผสมกันได้'],
+                correct: 1,
+                explanation: 'สีคู่ตรงข้ามคือสีที่อยู่ตรงข้ามกันในวงล้อสี สร้างความขัดแย้งสูงสุด',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'easy',
+                question: 'สีแดงมีสีคู่ตรงข้ามคือสีใด?',
+                options: ['ส้ม', 'เขียว', 'น้ำเงิน', 'เหลือง'],
+                correct: 1,
+                explanation: 'สีแดงมีสีคู่ตรงข้ามคือสีเขียว',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'easy',
+                question: 'สีคุมโทน (Analogous Colors) คืออะไร?',
+                options: ['สีที่อยู่ตรงข้ามกัน', 'สีที่อยู่ติดกันในวงล้อสี', 'สีที่เหมือนกัน', 'สีที่ผสมไม่ได้'],
+                correct: 1,
+                explanation: 'สีคุมโทนคือสีที่อยู่ติดกันในวงล้อสี (2-4 สี) สร้างความกลมกลืน',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'medium',
+                question: 'เมื่อผสมสีคู่ตรงข้ามเข้าด้วยกันจะได้สีอะไร?',
+                options: ['สีสดใส', 'สีเทาหรือน้ำตาล', 'สีขาว', 'สีดำ'],
+                correct: 1,
+                explanation: 'เมื่อผสมสีคู่ตรงข้ามเข้าด้วยกันจะได้สีเทาหรือน้ำตาล (สีที่หมองลง)',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'easy',
+                question: 'สีขั้นที่ 2 (Secondary Colors) ประกอบด้วยสีใดบ้าง?',
+                options: ['แดง เหลือง น้ำเงิน', 'ส้ม เขียว ม่วง', 'ขาว เทา ดำ', 'ชมพู ฟ้า เขียวอ่อน'],
+                correct: 1,
+                explanation: 'สีขั้นที่ 2 คือ ส้ม เขียว ม่วง ซึ่งเกิดจากการผสมสีขั้นที่ 1',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'medium',
+                question: 'สีเขียวเกิดจากการผสมสีใดบ้าง?',
+                options: ['แดง + เหลือง', 'เหลือง + น้ำเงิน', 'แดง + น้ำเงิน', 'ขาว + ดำ'],
+                correct: 1,
+                explanation: 'สีเขียวเกิดจากการผสมสีเหลืองกับสีน้ำเงิน',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'easy',
+                question: 'สีม่วงเกิดจากการผสมสีใดบ้าง?',
+                options: ['แดง + เหลือง', 'เหลือง + น้ำเงิน', 'แดง + น้ำเงิน', 'ขาว + ดำ'],
+                correct: 2,
+                explanation: 'สีม่วงเกิดจากการผสมสีแดงกับสีน้ำเงิน',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'medium',
+                question: 'สีขั้นที่ 3 (Tertiary Colors) เกิดจากการผสมอะไร?',
+                options: ['สีขั้นที่ 1 เท่านั้น', 'สีขั้นที่ 1 กับสีขั้นที่ 2', 'สีขั้นที่ 2 เท่านั้น', 'ขาวกับดำ'],
+                correct: 1,
+                explanation: 'สีขั้นที่ 3 เกิดจากการผสมระหว่างสีขั้นที่ 1 กับสีขั้นที่ 2',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'easy',
+                question: 'สีน้ำเงินมีสีคู่ตรงข้ามคือสีใด?',
+                options: ['แดง', 'เขียว', 'ส้ม', 'ม่วง'],
+                correct: 2,
+                explanation: 'สีน้ำเงินมีสีคู่ตรงข้ามคือสีส้ม',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'easy',
+                question: 'สีเหลืองมีสีคู่ตรงข้ามคือสีใด?',
+                options: ['แดง', 'เขียว', 'ส้ม', 'ม่วง'],
+                correct: 3,
+                explanation: 'สีเหลืองมีสีคู่ตรงข้ามคือสีม่วง',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'medium',
+                question: 'สีโทนร้อนให้ความรู้สึกอย่างไร?',
+                options: ['เย็นสบาย', 'อบอุ่น มีพลังงาน', 'เศร้าโศก', 'เฉยเมย'],
+                correct: 1,
+                explanation: 'สีโทนร้อนให้ความรู้สึกอบอุ่น มีพลังงาน และกระตุ้นอารมณ์',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'medium',
+                question: 'สีโทนเย็นให้ความรู้สึกอย่างไร?',
+                options: ['ร้อนแรง', 'เย็นสบาย สงบ', 'ตื่นเต้น', 'กระตุ้น'],
+                correct: 1,
+                explanation: 'สีโทนเย็นให้ความรู้สึกเย็นสบาย สงบ และผ่อนคลาย',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'hard',
+                question: 'การใช้สีคุมโทนในงานศิลปะช่วยสร้างอะไร?',
+                options: ['ความขัดแย้ง', 'ความกลมกลืนและสงบ', 'ความตื่นเต้น', 'ความสับสน'],
+                correct: 1,
+                explanation: 'การใช้สีคุมโทนช่วยสร้างความกลมกลืน สงบ และเป็นระเบียบ',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'easy',
+                question: 'วงล้อสีมีสีหลักทั้งหมดกี่สี?',
+                options: ['6 สี', '8 สี', '10 สี', '12 สี'],
+                correct: 3,
+                explanation: 'วงล้อสีมีสีหลักทั้งหมด 12 สี ประกอบด้วยสีขั้นที่ 1, 2, และ 3',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'medium',
+                question: 'สีที่มีความอิ่มตัวสูงจะมีลักษณะอย่างไร?',
+                options: ['จางและอ่อน', 'สดใสและเข้ม', 'เทาและหมอง', 'ขาวและใส'],
+                correct: 1,
+                explanation: 'สีที่มีความอิ่มตัวสูงจะดูสดใสและเข้ม มีความบริสุทธิ์ของสี',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'hard',
+                question: 'Hue, Saturation, Value หมายถึงอะไร?',
+                options: ['ขนาด น้ำหนัก ความหนา', 'สีสัน ความอิ่มตัว ความสว่าง', 'รูปร่าง พื้นผิว ทิศทาง', 'จุด เส้น รูปร่าง'],
+                correct: 1,
+                explanation: 'Hue คือสีสัน, Saturation คือความอิ่มตัว, Value คือความสว่าง-มืด',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'easy',
+                question: 'การใช้สีคู่ตรงข้ามช่วยสร้างอะไร?',
+                options: ['ความกลมกลืน', 'ความขัดแย้งและจุดเด่น', 'ความสงบ', 'ความเรียบง่าย'],
+                correct: 1,
+                explanation: 'การใช้สีคู่ตรงข้ามช่วยสร้างความขัดแย้งและจุดเด่นที่ชัดเจน',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'medium',
+                question: 'สีใดที่ให้ความรู้สึกสงบและผ่อนคลายมากที่สุด?',
+                options: ['แดง', 'ส้ม', 'น้ำเงิน', 'เหลือง'],
+                correct: 2,
+                explanation: 'สีน้ำเงินให้ความรู้สึกสงบ ผ่อนคลาย และเย็นสบายมากที่สุด',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'easy',
+                question: 'สีใดที่ให้ความรู้สึกมีพลังงานและตื่นเต้นมากที่สุด?',
+                options: ['น้ำเงิน', 'เขียว', 'แดง', 'ม่วง'],
+                correct: 2,
+                explanation: 'สีแดงให้ความรู้สึกมีพลังงาน ตื่นเต้น และกระตุ้นอารมณ์มากที่สุด',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'hard',
+                question: 'การใช้สีในงานศิลปะควรคำนึงถึงอะไรเป็นหลัก?',
+                options: ['ราคาของสี', 'อารมณ์และความหมาย', 'ความเร็วในการวาด', 'ความสะดวกในการหา'],
+                correct: 1,
+                explanation: 'การใช้สีควรคำนึงถึงอารมณ์และความหมายที่ต้องการสื่อสารเป็นหลัก',
+                category: 'color-theory'
+            },
+            {
+                topic: 'ทฤษฎีสีและการใช้สี',
+                icon: '🌈',
+                difficulty: 'medium',
+                question: 'สีเทาเกิดจากการผสมสีใดบ้าง?',
+                options: ['แดง + เขียว', 'ขาว + ดำ', 'เหลือง + ม่วง', 'ทุกข้อถูก'],
+                correct: 3,
+                explanation: 'สีเทาสามารถเกิดได้จากการผสมขาว+ดำ หรือสีคู่ตรงข้ามใดๆ เช่น แดง+เขียว, เหลือง+ม่วง',
+                category: 'color-theory'
+            }
+        ];
+        
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Update active tab button
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+            });
+            
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+            
+            // Show/hide tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+            currentTab = tabName;
+            
+            // Update stats when switching to stats tab
+            if (tabName === 'stats') {
+                updateStatsDisplay();
+            } else if (tabName === 'home') {
+                updateHomeStats();
+            }
+        }
+        
+        // Event listeners for tab buttons
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                switchTab(button.dataset.tab);
+            });
+        });
+        
+        // Quiz functionality
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+        
+        function startTopicQuiz(category) {
+            // Filter questions by category
+            const categoryQuestions = allQuestions.filter(q => q.category === category);
+            
+            // Shuffle and select 20 questions (or all if less than 20)
+            const shuffledQuestions = shuffleArray(categoryQuestions);
+            quizData = shuffledQuestions.slice(0, Math.min(20, shuffledQuestions.length));
+            
+            // If less than 20 questions, repeat some randomly to make 20
+            while (quizData.length < 20) {
+                const randomQuestion = shuffledQuestions[Math.floor(Math.random() * shuffledQuestions.length)];
+                quizData.push({...randomQuestion}); // Create a copy
+            }
+            
+            // Shuffle the final array
+            quizData = shuffleArray(quizData);
+            
+            // Shuffle options for each question
+            quizData.forEach(question => {
+                const correctAnswer = question.options[question.correct];
+                question.options = shuffleArray(question.options);
+                question.correct = question.options.indexOf(correctAnswer);
+            });
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            correctAnswers = 0;
+            wrongAnswers = 0;
+            
+            document.getElementById('quiz-selection').classList.add('hidden');
+            document.getElementById('quiz-interface').classList.remove('hidden');
+            document.getElementById('total-questions-num').textContent = quizData.length;
+            
+            showQuestion();
+        }
+        
+        function startMixedQuiz() {
+            // Shuffle questions and select 20 random questions from all categories
+            const shuffledQuestions = shuffleArray(allQuestions);
+            quizData = shuffledQuestions.slice(0, 20);
+            
+            // Shuffle options for each question
+            quizData.forEach(question => {
+                const correctAnswer = question.options[question.correct];
+                question.options = shuffleArray(question.options);
+                question.correct = question.options.indexOf(correctAnswer);
+            });
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            correctAnswers = 0;
+            wrongAnswers = 0;
+            
+            document.getElementById('quiz-selection').classList.add('hidden');
+            document.getElementById('quiz-interface').classList.remove('hidden');
+            document.getElementById('total-questions-num').textContent = quizData.length;
+            
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            const question = quizData[currentQuestionIndex];
+            
+            // Update progress
+            const progress = ((currentQuestionIndex + 1) / quizData.length) * 100;
+            const circumference = 2 * Math.PI * 52;
+            const offset = circumference - (progress / 100) * circumference;
+            
+            document.getElementById('progress-circle').style.strokeDashoffset = offset;
+            document.getElementById('progress-text').textContent = Math.round(progress) + '%';
+            document.getElementById('current-question-num').textContent = currentQuestionIndex + 1;
+            document.getElementById('current-score').textContent = score;
+            document.getElementById('correct-answers').textContent = correctAnswers;
+            document.getElementById('wrong-answers').textContent = wrongAnswers;
+            
+            // Update question display
+            document.getElementById('question-topic-icon').textContent = question.icon;
+            document.getElementById('question-topic').textContent = question.topic;
+            document.getElementById('question-title').textContent = question.question;
+            
+            // Set difficulty badge
+            const difficultyBadge = document.getElementById('question-difficulty');
+            difficultyBadge.textContent = question.difficulty === 'easy' ? 'ง่าย' : 
+                                        question.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก';
+            difficultyBadge.className = `difficulty-badge difficulty-${question.difficulty}`;
+            
+            // Clear visual content
+            document.getElementById('question-visual').innerHTML = '';
+            
+            // Create options
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'quiz-option bg-white border-2 border-gray-200 rounded-lg p-4 text-center font-medium hover:border-blue-300';
+                optionElement.textContent = option;
+                optionElement.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Hide feedback
+            document.getElementById('quiz-feedback').classList.add('hidden');
+        }
+        
+        function selectAnswer(selectedIndex) {
+            const question = quizData[currentQuestionIndex];
+            const options = document.querySelectorAll('.quiz-option');
+            
+            // Disable all options
+            options.forEach(option => {
+                option.onclick = null;
+                option.classList.remove('hover:border-blue-300');
+            });
+            
+            // Show correct/incorrect
+            options[selectedIndex].classList.add(selectedIndex === question.correct ? 'correct' : 'incorrect');
+            if (selectedIndex !== question.correct) {
+                options[question.correct].classList.add('correct');
+            }
+            
+            // Update score
+            if (selectedIndex === question.correct) {
+                correctAnswers++;
+                score += question.difficulty === 'easy' ? 5 : question.difficulty === 'medium' ? 10 : 15;
+                showFeedback(true, question.explanation);
+                createConfetti();
+            } else {
+                wrongAnswers++;
+                showFeedback(false, question.explanation);
+            }
+        }
+        
+        function showFeedback(isCorrect, explanation) {
+            const feedbackElement = document.getElementById('quiz-feedback');
+            const iconElement = document.getElementById('feedback-icon');
+            const textElement = document.getElementById('feedback-text');
+            const explanationElement = document.getElementById('feedback-explanation');
+            
+            if (isCorrect) {
+                iconElement.textContent = '🎉';
+                textElement.textContent = 'ถูกต้อง!';
+                textElement.className = 'text-xl font-semibold mb-4 text-green-600';
+            } else {
+                iconElement.textContent = '😅';
+                textElement.textContent = 'ไม่ถูกต้อง';
+                textElement.className = 'text-xl font-semibold mb-4 text-red-600';
+            }
+            
+            explanationElement.textContent = explanation;
+            feedbackElement.classList.remove('hidden');
+        }
+        
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < quizData.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+        
+        function showResults() {
+            const totalQuestions = quizData.length;
+            const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+            
+            // Save results
+            const result = {
+                date: new Date().toLocaleDateString('th-TH'),
+                time: new Date().toLocaleTimeString('th-TH'),
+                score: score,
+                correct: correctAnswers,
+                wrong: wrongAnswers,
+                total: totalQuestions,
+                percentage: percentage
+            };
+            
+            allResults.push(result);
+            localStorage.setItem('visualArtsResults', JSON.stringify(allResults));
+            
+            // Show results
+            document.getElementById('quiz-question-display').classList.add('hidden');
+            document.getElementById('quiz-results').classList.remove('hidden');
+            
+            // Update result display
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-correct').textContent = correctAnswers;
+            document.getElementById('final-wrong').textContent = wrongAnswers;
+            document.getElementById('final-percentage').textContent = percentage + '%';
+            
+            // Performance message
+            let message = '';
+            let icon = '';
+            
+            if (percentage >= 90) {
+                message = 'ยอดเยี่ยม! คุณมีความรู้ด้านทัศนศิลป์ในระดับสูงมาก';
+                icon = '🏆';
+                createConfetti();
+            } else if (percentage >= 80) {
+                message = 'ดีมาก! คุณมีความเข้าใจด้านทัศนศิลป์ในระดับดี';
+                icon = '🌟';
+            } else if (percentage >= 70) {
+                message = 'ดี! คุณมีพื้นฐานความรู้ด้านทัศนศิลป์ที่ดี';
+                icon = '👍';
+            } else if (percentage >= 60) {
+                message = 'พอใช้ ควรทบทวนเนื้อหาเพิ่มเติม';
+                icon = '📚';
+            } else {
+                message = 'ควรศึกษาเนื้อหาเพิ่มเติมและลองทำแบบทดสอบอีกครั้ง';
+                icon = '💪';
+            }
+            
+            document.getElementById('results-icon').textContent = icon;
+            document.getElementById('performance-message').textContent = message;
+        }
+        
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b', '#eb4d4b', '#6c5ce7'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                
+                container.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+        
+        function retakeQuiz() {
+            document.getElementById('quiz-results').classList.add('hidden');
+            document.getElementById('quiz-question-display').classList.remove('hidden');
+            startQuiz();
+        }
+        
+        function backToQuizSelection() {
+            document.getElementById('quiz-interface').classList.add('hidden');
+            document.getElementById('quiz-selection').classList.remove('hidden');
+        }
+        
+        function updateStatsDisplay() {
+            if (allResults.length === 0) {
+                document.getElementById('no-stats').classList.remove('hidden');
+                document.getElementById('stats-content').classList.add('hidden');
+                return;
+            }
+            
+            document.getElementById('no-stats').classList.add('hidden');
+            document.getElementById('stats-content').classList.remove('hidden');
+            
+            // Calculate overall stats
+            const totalAttempts = allResults.length;
+            const totalScore = allResults.reduce((sum, result) => sum + result.score, 0);
+            const avgScore = Math.round(totalScore / totalAttempts);
+            const bestScore = Math.max(...allResults.map(result => result.score));
+            const totalCorrect = allResults.reduce((sum, result) => sum + result.correct, 0);
+            const totalQuestions = allResults.reduce((sum, result) => sum + result.total, 0);
+            const accuracy = Math.round((totalCorrect / totalQuestions) * 100);
+            
+            document.getElementById('total-attempts').textContent = totalAttempts;
+            document.getElementById('avg-score').textContent = avgScore;
+            document.getElementById('best-score').textContent = bestScore;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+            
+            // Calculate topic performance (placeholder - would need more detailed tracking)
+            document.getElementById('visual-elements-score').textContent = accuracy + '%';
+            document.getElementById('composition-score').textContent = accuracy + '%';
+            document.getElementById('perspective-score').textContent = accuracy + '%';
+            document.getElementById('color-theory-score').textContent = accuracy + '%';
+            
+            // Show recent history
+            const historyContainer = document.getElementById('recent-history');
+            historyContainer.innerHTML = '';
+            
+            const recentResults = allResults.slice(-10).reverse();
+            recentResults.forEach(result => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'flex justify-between items-center p-3 bg-gray-50 rounded-lg';
+                historyItem.innerHTML = `
+                    <div>
+                        <div class="font-medium">${result.date} ${result.time}</div>
+                        <div class="text-sm text-gray-600">${result.correct}/${result.total} ข้อ (${result.percentage}%)</div>
+                    </div>
+                    <div class="text-lg font-bold text-blue-600">${result.score} คะแนน</div>
+                `;
+                historyContainer.appendChild(historyItem);
+            });
+        }
+        
+        function updateHomeStats() {
+            if (allResults.length === 0) {
+                document.getElementById('total-attempts-home').textContent = '0';
+                document.getElementById('avg-score-home').textContent = '0';
+                document.getElementById('best-score-home').textContent = '0';
+                document.getElementById('accuracy-home').textContent = '0%';
+                return;
+            }
+            
+            const totalAttempts = allResults.length;
+            const totalScore = allResults.reduce((sum, result) => sum + result.score, 0);
+            const avgScore = Math.round(totalScore / totalAttempts);
+            const bestScore = Math.max(...allResults.map(result => result.score));
+            const totalCorrect = allResults.reduce((sum, result) => sum + result.correct, 0);
+            const totalQuestions = allResults.reduce((sum, result) => sum + result.total, 0);
+            const accuracy = Math.round((totalCorrect / totalQuestions) * 100);
+            
+            document.getElementById('total-attempts-home').textContent = totalAttempts;
+            document.getElementById('avg-score-home').textContent = avgScore;
+            document.getElementById('best-score-home').textContent = bestScore;
+            document.getElementById('accuracy-home').textContent = accuracy + '%';
+        }
+        
+        // Event listeners
+        document.getElementById('start-mixed-quiz-btn').addEventListener('click', startMixedQuiz);
+        document.getElementById('next-question-btn').addEventListener('click', nextQuestion);
+        document.getElementById('retake-quiz-btn').addEventListener('click', () => {
+            document.getElementById('quiz-results').classList.add('hidden');
+            document.getElementById('quiz-selection').classList.remove('hidden');
+        });
+        document.getElementById('view-stats-btn').addEventListener('click', () => switchTab('stats'));
+        
+        // Initialize
+        updateHomeStats();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96976981d405272b',t:'MTc1NDI0MDg1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
